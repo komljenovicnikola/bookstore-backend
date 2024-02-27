@@ -12,6 +12,7 @@ alembic = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
 passlib = "*"
+bcrypt = "*"
 
 [dev-packages]
 fastapi = "*"
@@ -22,6 +23,7 @@ alembic = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
 passlib = "*"
+bcrypt = "*"
 
 [requires]
 python_version = "3.10"

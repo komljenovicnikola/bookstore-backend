@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bookstore-backend
+    ports:
+      - "6000:6000"
+    volumes:
+      - .:/app
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    container_name: bookstore-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    restart: always
+
+volumes:
+  pgdata:
