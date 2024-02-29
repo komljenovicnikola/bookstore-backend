@@ -89,6 +89,14 @@ class Book(Base):
         return book
 
     @classmethod
+    def update_book(cls, db, book_id, data):
+        book = db.query(Book).filter(Book.id == book_id).first()
+        for key, value in data.dict().items():
+            setattr(book, key, value)
+        db.commit()
+        return book
+
+    @classmethod
     def return_book(cls, db, user_id, book_id):
         user = db.query(User).filter(User.id == user_id).first()
         book = db.query(Book).filter(Book.id == book_id).first()
