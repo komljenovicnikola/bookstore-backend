@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: bookstore-backend
     ports:
-      - "6000:6000"
+      - "8000:8000"
     volumes:
       - .:/app
     environment:
