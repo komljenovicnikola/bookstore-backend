@@ -23,6 +23,14 @@ Three users will be created by default when the server starts. The credentials a
 - user2@example.com:password456 (admin)
 - user3@example.com:password789 (customer)
 
+## Testing
+
+To run the tests, use the following command:
+
+```bash
+python -m pytest
+```
+
 ## API
 
 The API documentation is available at `/docs`.
