@@ -68,6 +68,20 @@ class User(Base):
     def get_user_books(cls, db, user_id):
         return db.query(cls).filter(cls.id == user_id).first().books
 
+    @classmethod
+    def update_user_role(cls, db, user_id):
+        user = db.query(cls).filter(cls.id == user_id).first()
+        if user:
+            user.role = UserRole.admin
+            try:
+                db.commit()
+                return user
+            except Exception as e:
+                db.rollback()
+                raise ValueError(f"Failed to change user role. Details: {e}")
+        else:
+            raise ValueError("User not found")
+
 
 class Book(Base):
     __tablename__ = "books"

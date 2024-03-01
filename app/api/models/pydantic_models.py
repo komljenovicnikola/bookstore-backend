@@ -10,7 +10,7 @@ class UserLoginSchema(BaseModel):
         model = 'User'
 
 
-class UserLoginResponseSchema(BaseModel):
+class UserResponseSchema(BaseModel):
     id: int
     email: str
     first_name: str
