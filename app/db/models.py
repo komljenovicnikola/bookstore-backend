@@ -43,26 +43,30 @@ class User(Base):
 
     @classmethod
     def login(cls, db, data):
-        user = db.query(User).filter(User.email == data.email).first()
+        user = db.query(cls).filter(cls.email == data.email).first()
         if user and user.verify_password(data.password):
             return user
         return None
 
     @classmethod
     def register(cls, db, data):
-        user = User(**data.dict())
-        user.password = data.password
-        db.add(user)
-        db.commit()
-        return user
+        try:
+            user = User(**data.dict())
+            user.password = data.password
+            db.add(user)
+            db.commit()
+            return user
+        except Exception as e:
+            db.rollback()
+            raise ValueError(f"Registration failed. Details: {e}")
 
     @classmethod
     def get_all_customer_users(cls, db):
-        return db.query(User).filter(User.role == UserRole.customer).all()
+        return db.query(cls).filter(cls.role == UserRole.customer).all()
 
     @classmethod
     def get_user_books(cls, db, user_id):
-        return db.query(User).filter(User.id == user_id).first().books
+        return db.query(cls).filter(cls.id == user_id).first().books
 
 
 class Book(Base):
@@ -75,10 +79,14 @@ class Book(Base):
 
     @classmethod
     def create_and_borrow(cls, db, data):
-        book = Book(**data.dict(exclude={"user_id"}))
-        db.add(book)
-        db.commit()
-        return cls.borrow(db, data.user_id, book.id)
+        try:
+            book = Book(**data.dict(exclude={"user_id"}))
+            db.add(book)
+            db.commit()
+            return cls.borrow(db, data.user_id, book.id)
+        except Exception as e:
+            db.rollback()
+            raise ValueError(f"Failed to create and borrow book. Details: {e}")
 
     @classmethod
     def borrow(cls, db, user_id, book_id):
@@ -90,16 +98,30 @@ class Book(Base):
 
     @classmethod
     def update_book(cls, db, book_id, data):
-        book = db.query(Book).filter(Book.id == book_id).first()
-        for key, value in data.dict().items():
-            setattr(book, key, value)
-        db.commit()
-        return book
+        try:
+            book = db.query(cls).filter(cls.id == book_id).first()
+            if book:
+                for key, value in data.dict().items():
+                    setattr(book, key, value)
+                db.commit()
+                return book
+            else:
+                raise ValueError("Book not found")
+        except Exception as e:
+            db.rollback()
+            raise ValueError(f"Failed to update book. Details: {e}")
 
     @classmethod
     def return_book(cls, db, user_id, book_id):
-        user = db.query(User).filter(User.id == user_id).first()
-        book = db.query(Book).filter(Book.id == book_id).first()
-        book.borrowers.remove(user)
-        db.commit()
-        return book
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            book = db.query(Book).filter(Book.id == book_id).first()
+            if user and book:
+                book.borrowers.remove(user)
+                db.commit()
+                return book
+            else:
+                raise ValueError("User or book not found")
+        except Exception as e:
+            db.rollback()
+            raise ValueError(f"Failed to return book. Details: {e}")
