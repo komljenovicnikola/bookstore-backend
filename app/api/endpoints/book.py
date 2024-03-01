@@ -10,7 +10,7 @@ router = APIRouter()
 
 
 @router.post("/borrow", response_model=BookResponseSchema, status_code=status.HTTP_201_CREATED)
-async def book(item: BookSchema, db: Session = Depends(get_session_local)) -> BookResponseSchema:
+async def borrow(item: BookSchema, db: Session = Depends(get_session_local)) -> BookResponseSchema:
     book_data = Book().create_and_borrow(db=db, data=item)
     response = parse_obj_as(BookResponseSchema, book_data)
     return response
