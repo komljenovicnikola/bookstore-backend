@@ -80,7 +80,7 @@ class User(Base):
                 db.rollback()
                 raise ValueError(f"Failed to change user role. Details: {e}")
         else:
-            raise ValueError("User not found")
+            return None
 
 
 class Book(Base):
@@ -120,7 +120,7 @@ class Book(Base):
                 db.commit()
                 return book
             else:
-                raise ValueError("Book not found")
+                return None
         except Exception as e:
             db.rollback()
             raise ValueError(f"Failed to update book. Details: {e}")
@@ -135,7 +135,7 @@ class Book(Base):
                 db.commit()
                 return book
             else:
-                raise ValueError("User or book not found")
+                return None
         except Exception as e:
             db.rollback()
             raise ValueError(f"Failed to return book. Details: {e}")
