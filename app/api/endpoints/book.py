@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import TypeAdapter
 from sqlalchemy.orm import Session
 
@@ -12,22 +12,31 @@ router = APIRouter()
 @router.post("/borrow", response_model=BookResponseSchema, status_code=status.HTTP_201_CREATED)
 async def borrow(item: BookSchema, db: Session = Depends(get_session_local)) -> BookResponseSchema:
     book_data = Book().create_and_borrow(db=db, data=item)
-    ta = TypeAdapter(BookResponseSchema)
-    response = ta.validate_python(book_data)
-    return response
+    if book_data:
+        ta = TypeAdapter(BookResponseSchema)
+        response = ta.validate_python(book_data)
+        return response
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Borrow failed")
 
 
 @router.put("/{book_id}", response_model=BookResponseSchema, status_code=status.HTTP_200_OK)
 async def update_book(book_id: int, item: BookSchema, db: Session = Depends(get_session_local)) -> BookResponseSchema:
     book_data = Book().update_book(db=db, book_id=book_id, data=item)
-    ta = TypeAdapter(BookResponseSchema)
-    response = ta.validate_python(book_data)
-    return response
+    if book_data:
+        ta = TypeAdapter(BookResponseSchema)
+        response = ta.validate_python(book_data)
+        return response
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Update failed")
 
 
 @router.delete("/{user_id}/return/{book_id}", response_model=BookResponseSchema, status_code=status.HTTP_200_OK)
 async def return_book(user_id: int, book_id: int, db: Session = Depends(get_session_local)) -> BookResponseSchema:
-    response = Book().return_book(db=db, book_id=book_id, user_id=user_id)
-    ta = TypeAdapter(BookResponseSchema)
-    response = ta.validate_python(response)
-    return response
+    book_data = Book().return_book(db=db, book_id=book_id, user_id=user_id)
+    if book_data:
+        ta = TypeAdapter(BookResponseSchema)
+        response = ta.validate_python(book_data)
+        return response
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Return of the book failed")
